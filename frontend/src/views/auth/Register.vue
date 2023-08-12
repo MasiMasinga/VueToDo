@@ -28,7 +28,7 @@
                             class="mt-1 flex justify-center font-bold text-red-600 text-xs" />
                     </div>
                     <button type="submit" class="my-2 bg-yellow-500 w-96 p-2 rounded font-bold">
-                        <router-link to="/home">Register</router-link>
+                        Register
                     </button>
                 </form>
                 <h4 class="text-sm mb-4">
@@ -63,7 +63,7 @@ export default {
             if (values) {
                 console.log(values);
                 toast.success('Registration successful');
-                this.$router.push('/home');
+                //this.$router.push('/home');
             }
         },
         validateName(value) {

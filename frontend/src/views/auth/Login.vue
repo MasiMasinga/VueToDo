@@ -16,7 +16,7 @@
                         <ErrorMessage name="password" class="mt-1 flex justify-center font-bold text-red-600 text-xs" />
                     </div>
                     <button type="submit" class="my-2 bg-yellow-500 w-96 p-2 rounded font-bold">
-                        <router-link to="/home">Login</router-link>
+                        Login
                     </button>
                 </Form>
                 <h4 class="text-sm mb-4">
@@ -48,7 +48,7 @@ export default {
         onSubmit(values) {
             console.log(values);
             toast.success('Login successful');
-            this.$router.push('/home');
+            //this.$router.push('/home');
         },
         validateEmail(value) {
             if (!value) {
