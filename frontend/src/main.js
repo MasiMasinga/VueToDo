@@ -10,5 +10,5 @@ import Vue3Toastify from 'vue3-toastify';
 
 const app = createApp(App);
 app.use(router);
-app.use(Vue3Toastify, { autoClose: 6000 });
+app.use(Vue3Toastify, { autoClose: 3000 });
 app.mount('#app');
