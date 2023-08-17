@@ -28,7 +28,7 @@
             <div class="fixed w-full h-screen flex items-center justify-center bg-slate-300 opacity-95 inset-0 z-0">
                 <div class="flex flex-col justify-center  w-full max-w-2xl h-96 bg-white shadow-lg rounded-lg p-8">
                     <div class="flex justify-center font-bold text-3xl">Edit Task</div>
-                    <input type="email" name="email" id="email" placeholder="Edit Task..."
+                    <input type="text" v-model="editedTask" placeholder="Edit Task..."
                         class="w-full p-2 rounded border-black border-2 my-4" />
                     <div class="flex items-center justify-evenly">
                         <button @click="closeModal" class="bg-red-600 rounded w-96 mr-1 p-2 font-bold">
@@ -88,13 +88,16 @@ export default {
             showDeleteModal: false,
             tasks: [],
             newTask: '',
+            editedTaskIndex: null,
         };
     },
     methods: {
         openTaskModal() {
             this.showAddTaskModal = true;
         },
-        openEditModal() {
+        openEditModal(index) {
+            this.editedTaskIndex = index; 
+            this.editedTask = this.tasks[index].title;
             this.showEditModal = true;
         },
         openDeleteModal() {
@@ -124,7 +127,7 @@ export default {
             toast.success('Task completed');
         },
         handleEdit() {
-            console.log('Edit Task');
+            this.tasks[this.editedTaskIndex].title = this.editedTask;
             this.showEditModal = false;
             toast.success('Task updated');
         },
