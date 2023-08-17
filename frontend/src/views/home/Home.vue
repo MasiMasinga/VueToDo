@@ -7,59 +7,97 @@
         </button>
 
         <TaskModal v-if="showAddTaskModal">
-            <div>
-                <div>Add Task</div>
-                <button @click="closeModal">Close</button>
-                <button @click="handleAddTask">Save</button>
+            <div class="fixed w-full h-screen flex items-center justify-center bg-slate-300 opacity-95 inset-0 z-0">
+                <div class="flex flex-col justify-center w-full max-w-2xl h-96 bg-white shadow-lg rounded-lg p-8">
+                    <div class="flex justify-center font-bold text-3xl">Add Task</div>
+                    <input type="email" name="email" id="email" placeholder="Add Task..." v-model="newTask"
+                        class="w-full p-2 rounded border-black border-2 my-4" />
+                    <div class="flex items-center justify-evenly">
+                        <button @click="closeModal" class="bg-red-600 rounded w-96 mr-1 p-2 font-bold">
+                            Close
+                        </button>
+                        <button @click="handleAddTask" class="bg-green-600 rounded w-96 ml-1 p-2 font-bold">
+                            Save
+                        </button>
+                    </div>
+                </div>
             </div>
         </TaskModal>
 
         <TaskModal v-if="showEditModal">
-            <div>
-                <div>Edit Task</div>
-                <button @click="closeModal">Close</button>
-                <button @click="handleEdit">Save</button>
+            <div class="fixed w-full h-screen flex items-center justify-center bg-slate-300 opacity-95 inset-0 z-0">
+                <div class="flex flex-col justify-center  w-full max-w-2xl h-96 bg-white shadow-lg rounded-lg p-8">
+                    <div class="flex justify-center font-bold text-3xl">Edit Task</div>
+                    <input type="text" v-model="editedTask" placeholder="Edit Task..."
+                        class="w-full p-2 rounded border-black border-2 my-4" />
+                    <div class="flex items-center justify-evenly">
+                        <button @click="closeModal" class="bg-red-600 rounded w-96 mr-1 p-2 font-bold">
+                            Close
+                        </button>
+                        <button @click="handleEdit" class="bg-green-600 rounded w-96 ml-1 p-2 font-bold">
+                            Update
+                        </button>
+                    </div>
+                </div>
             </div>
         </TaskModal>
 
         <TaskModal v-if="showDeleteModal">
-            <div>
-                <h1>
-                    Are you sure you want to delete this task?
-                </h1>
-                <button @click="closeModal">Close</button>
-                <button @click="handleRemove">Delete</button>
+            <div class="fixed w-full h-screen flex items-center justify-center bg-slate-300 opacity-95 inset-0 z-0">
+                <div class="flex flex-col justify-center w-full max-w-2xl h-96 bg-white shadow-lg rounded-lg p-8">
+                    <div class="flex justify-center font-bold text-2xl">
+                        Are you sure you want to delete this task?
+                    </div>
+                    <div class="flex items-center justify-evenly my-6">
+                        <button @click="closeModal" class="bg-red-600 rounded w-96 mr-1 p-2 font-bold">
+                            Close
+                        </button>
+                        <button @click="handleRemove(index)" class="bg-blue-600 rounded w-96 ml-1 p-2 font-bold">
+                            Delete
+                        </button>
+                    </div>
+                </div>
             </div>
         </TaskModal>
 
-        <TaskItem title="Ride Bicycle" @complete="handleComplete" @edit="openEditModal" @remove="openDeleteModal" />
+        <TaskItem v-for="(task, index) in tasks" :key="index" :task="task" @complete="handleComplete(index)"
+            @edit="openEditModal(index)" @remove="openDeleteModal(index)" />
 
     </div>
 </template>
 
 <script>
 
+// Vue Toastify
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+
 // Components
-import TaskItem from '../../common/components/TaskItem.vue';
-import Modal from '../../common/components/Modal.vue';
+import TaskItem from '../../components/TaskItem.vue';
+import TaskModal from '../../components/TaskModal.vue';
 
 export default {
     components: {
         TaskItem,
-        Modal,
+        TaskModal,
     },
     data() {
         return {
             showAddTaskModal: false,
             showEditModal: false,
             showDeleteModal: false,
+            tasks: [],
+            newTask: '',
+            editedTaskIndex: null,
         };
     },
     methods: {
         openTaskModal() {
             this.showAddTaskModal = true;
         },
-        openEditModal() {
+        openEditModal(index) {
+            this.editedTaskIndex = index; 
+            this.editedTask = this.tasks[index].title;
             this.showEditModal = true;
         },
         openDeleteModal() {
@@ -79,18 +117,24 @@ export default {
             }
         },
         handleAddTask() {
-            console.log('Add Task');
+            this.tasks.push({ title: this.newTask, completed: false });
+            this.newTask = '';
+            this.showAddTaskModal = false;
+            toast.success('Task added');
         },
-        handleComplete() {
-            console.log('Completed');
+        handleComplete(index) {
+            this.tasks[index].completed = true;
+            toast.success('Task completed');
         },
         handleEdit() {
-            this.showEditModal = true;
-            console.log('Edit');
+            this.tasks[this.editedTaskIndex].title = this.editedTask;
+            this.showEditModal = false;
+            toast.success('Task updated');
         },
-        handleRemove() {
-            this.showDeleteModal = true;
-            console.log('Delete');
+        handleRemove(index) {
+            this.tasks.splice(index, 1);
+            toast.success('Task deleted');
+            this.showDeleteModal = false;
         },
     },
 };
