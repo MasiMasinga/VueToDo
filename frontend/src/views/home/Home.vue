@@ -28,7 +28,7 @@
             <div class="fixed w-full h-screen flex items-center justify-center bg-slate-300 opacity-95 inset-0 z-0">
                 <div class="flex flex-col justify-center  w-full max-w-2xl h-96 bg-white shadow-lg rounded-lg p-8">
                     <div class="flex justify-center font-bold text-3xl">Edit Task</div>
-                    <input type="text" v-model="editedTask" placeholder="Edit Task..."
+                    <input type="text" v-model="editedTask.title" placeholder="Edit Task..."
                         class="w-full p-2 rounded border-black border-2 my-4" />
                     <div class="flex items-center justify-evenly">
                         <button @click="closeModal" class="bg-red-600 rounded w-96 mr-1 p-2 font-bold">
@@ -68,6 +68,9 @@
 
 <script>
 
+// Api
+import { api } from '../../services/api';
+
 // Vue Toastify
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
@@ -91,12 +94,15 @@ export default {
             editedTaskIndex: null,
         };
     },
+    created() {
+        this.fetchTasks();
+    },
     methods: {
         openTaskModal() {
             this.showAddTaskModal = true;
         },
         openEditModal(index) {
-            this.editedTaskIndex = index; 
+            this.editedTaskIndex = index;
             this.editedTask = this.tasks[index].title;
             this.showEditModal = true;
         },
@@ -116,25 +122,66 @@ export default {
                 this.showDeleteModal = false;
             }
         },
-        handleAddTask() {
-            this.tasks.push({ title: this.newTask, completed: false });
-            this.newTask = '';
-            this.showAddTaskModal = false;
-            toast.success('Task added');
+        async handleAddTask() {
+            try {
+                const newTask = { title: this.newTask, completed: false };
+                const response = await api.createTask(newTask);
+                this.tasks.push(response.data);
+                this.newTask = '';
+                this.showAddTaskModal = false;
+                toast.success('Task added');
+            } catch (error) {
+                console.error('Error adding task:', error);
+                toast.error('Error adding task');
+            }
         },
-        handleComplete(index) {
-            this.tasks[index].completed = true;
-            toast.success('Task completed');
+        async handleComplete(index) {
+            const task = this.tasks[index];
+            try {
+                await api.updateTaskCompletionStatus(task);
+                task.completed = true;
+                toast.success('Task completed');
+            } catch (error) {
+                console.error('Error updating task completion status:', error);
+            }
         },
-        handleEdit() {
-            this.tasks[this.editedTaskIndex].title = this.editedTask;
-            this.showEditModal = false;
-            toast.success('Task updated');
+        async handleEdit() {
+            try {
+                const updatedTask = {
+                    id: this.tasks[this.editedTaskIndex].id,
+                    title: this.editedTask,
+                    completed: this.tasks[this.editedTaskIndex].completed,
+                };
+                await api.updateTask(updatedTask);
+                this.tasks[this.editedTaskIndex].title = this.editedTask;
+                this.showEditModal = false;
+                toast.success('Task updated');
+                this.fetchTasks();
+            } catch (error) {
+                console.error('Error updating task:', error);
+                toast.error('An error occurred while updating the task.');
+            }
         },
-        handleRemove(index) {
-            this.tasks.splice(index, 1);
-            toast.success('Task deleted');
-            this.showDeleteModal = false;
+        async handleRemove(index) {
+            const taskToDelete = this.tasks[index];
+            try {
+                await api.deleteTask(taskToDelete);
+                this.tasks.splice(index, 1);
+                this.showDeleteModal = false;
+                toast.success('Task deleted');
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                toast.error('An error occurred while deleting the task.');
+            }
+        },
+        async fetchTasks() {
+            try {
+                const response = await api.getTasks();
+                this.tasks = response.data;
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+                toast.error('An error occurred while fetching tasks.');
+            }
         },
     },
 };
